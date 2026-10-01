@@ -55,7 +55,7 @@ export default function CreatePage() {
 
     // 3️⃣ Obtener URL pública
     const { data: urlData } = supabase.storage
-      .from("images")
+      .from("supagram")
       .getPublicUrl(filePath);
 
     const publicUrl = urlData.publicUrl;
