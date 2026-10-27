@@ -12,10 +12,10 @@ export default function Modal({
 }) {
 
   const username = post.profile?.username || 'default user';
-  const avatarUrl = post.profile?.avatar_url || "/blank-profile-picture.webp";
+  const avatarUrl = post.profile?.avatar_url || "/user.webp";
 
   console.log(avatarUrl)
-  
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
@@ -32,7 +32,7 @@ export default function Modal({
           aria-label="Cerrar"
         >
           <svg
-            xmlns="http://www.w3.org/2000/svg"
+            xmlns="https://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
             strokeWidth={2}
@@ -78,7 +78,7 @@ export default function Modal({
           <div className="flex items-center gap-2">
             <HeartIcon filled={true} />
             <span className="text-lg font-bold text-foreground">
-              {post.likes.toLocaleString()} likes
+              {post.likes_count.toLocaleString()} likes
             </span>
           </div>
           <p className="mt-2 text-foreground">
