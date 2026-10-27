@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Post, Comment } from "./types";
+import { Post, Comment, Profile } from "./types";
 import { supabase } from "./lib/client";
 import PostCard from "./components/PostCard";
 
@@ -9,11 +9,18 @@ import PostCard from "./components/PostCard";
 export default function Home() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [currentUserProfile, setCurrentUserProfile] = useState<Profile | null>(null);
 
   // Obtener usuario actual
   useEffect(() => {
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
+      const username = user?.user_metadata?.username;
+      setCurrentUserProfile(
+        typeof username === "string" && username.trim()
+          ? { username, avatar_url: null }
+          : null
+      );
       setCurrentUserId(user?.id || null);
     };
     getUser();
@@ -81,7 +88,7 @@ export default function Home() {
 
       const newComment: Comment = {
         ...data,
-        profile: profileData || undefined,
+        profile: profileData || currentUserProfile || undefined,
       };
 
       setPosts((prev) =>
@@ -169,7 +176,8 @@ export default function Home() {
         const postComments = commentsMap.get(comment.post_id) || [];
         postComments.push({
           ...comment,
-          profile: commenterProfilesMap.get(comment.user_id),
+          profile: commenterProfilesMap.get(comment.user_id) ||
+            (comment.user_id === currentUserId ? currentUserProfile || undefined : undefined),
         });
         commentsMap.set(comment.post_id, postComments);
       });
@@ -177,7 +185,8 @@ export default function Home() {
       // 6. Combinar todo
       const postsWithData: Post[] = postsData.map((post) => ({
         ...post,
-        profile: profilesMap.get(post.user_id),
+        profile: profilesMap.get(post.user_id) ||
+          (post.user_id === currentUserId ? currentUserProfile || undefined : undefined),
         likes_count: likesCountMap.get(post.id) || 0,
         isLiked: userLikesSet.has(post.id),
         comments: commentsMap.get(post.id) || [],
@@ -187,7 +196,7 @@ export default function Home() {
     };
 
     fetchPosts();
-  }, [currentUserId]);
+  }, [currentUserId, currentUserProfile]);
 
   return (
     <div className="min-h-screen bg-background">
